@@ -15,7 +15,7 @@ long cantidad = 100000000;
 
 vector <int> estrato(10);
 float total_personas=0;
-map <pair <string, string> , vector<short>> edad;
+map <pair <string, string> , vector<int>> edad;
 map <int, int> viajes;
 
 string limpiar_linea(string linea){
@@ -39,16 +39,15 @@ void parametros(string linea){
     while (getline(ss, token, ';')) {
         datos.push_back(token);
     }
-    short estra = int(datos[6][0])-'0';
+    int estra = int(datos[6][0])-'0';
     string espe = datos[1];
     string gen = datos[2];
-    short ed = Fecha - stoi(datos[5].substr(0,4));
+    int ed = Fecha - stoi(datos[5].substr(0,4));
     int via = stoi(datos[7].substr(1,datos[7].size()));
 
     #pragma omp critical
     {
         estrato[estra]++;
-        total_personas++;
         edad[{espe,gen}].push_back(ed);
         viajes[via]++;
     }
@@ -120,7 +119,7 @@ void respuesta3(){
     for (auto& datos : edad){
         string especie = datos.first.first;
         string genero = datos.first.second;
-        vector<short> anios = datos.second;
+        vector<int> anios = datos.second;
         float suma = 0;
         for(int i = 0; i < anios.size(); i++)
             suma = suma + anios[i];
@@ -133,7 +132,7 @@ void respuesta4(){
     for (auto& datos : edad){
         string especie = datos.first.first;
         string genero = datos.first.second;
-        vector<short> anios = datos.second;
+        vector<int> anios = datos.second;
         sort(anios.begin(), anios.end());
         int mediana = anios[(anios.size())/2];
 
@@ -145,7 +144,7 @@ void respuesta5(){
         for (auto& datos : edad){
         string especie = datos.first.first;
         string genero = datos.first.second;
-        vector<short> anios = datos.second;
+        vector<int> anios = datos.second;
         int menor1 = 0;
         int menor3 = 0;
         int mayor6 = 0;
@@ -170,13 +169,14 @@ void respuesta5(){
 }
 
 void respuesta7(){
+    float promedio = 0;
+    int cantidad = 0;
     for (auto& datos : edad){
         string especie = datos.first.first;
         string genero = datos.first.second;
-        vector<short> anios = datos.second;
+        vector<int> anios = datos.second;
         int menor1 = 0;
         int mayor6 = 0;
-        float promedio = 0;
         for (int i = 0; i < anios.size() ; i++)
         {
             if (anios[i] < 18){
@@ -185,14 +185,17 @@ void respuesta7(){
                 mayor6++;
             }
         }
-        float total = menor1 + mayor6;
-        promedio = total/anios.size();
-        cout<<"La dependencia es del "<<promedio<<" porciento"<<endl;
+        promedio = promedio + menor1 + mayor6;
+        cantidad = cantidad + anios.size();
     }
+    promedio = promedio/cantidad;
+    cout<<"La dependencia es del "<<promedio<<" porciento"<<endl;
 }
 
 int main(){
     leer_archivo("eldoria.csv");
+    for(int i=0; i<estrato.size();i++)
+        total_personas = total_personas + estrato[i];
     respuesta1();
     cout<<endl;
     respuesta2();
